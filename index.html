@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunflower for My Special One 🌻</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #e0f7fa;
+            --primary-teal: #00796b;
+            --water-blue: #4fc3f7;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            font-family: 'Prompt', sans-serif;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; overflow: hidden; text-align: center;
+        }
+
+        .game-container { position: relative; z-index: 10; width: 100%; max-width: 400px; }
+
+        h1 { color: var(--primary-teal); font-size: 1.2rem; margin-bottom: 10px; }
+
+        #plant-display {
+            width: 280px; height: 280px; margin: 0 auto;
+            display: flex; justify-content: center; align-items: flex-end;
+            cursor: pointer; transition: transform 0.2s;
+        }
+
+        #plant-display:active { transform: scale(0.98); }
+
+        /* ปุ่มรดน้ำ */
+        #water-btn {
+            background-color: var(--water-blue);
+            color: white; border: 3px solid #01579b;
+            padding: 12px 35px; font-size: 1.1rem;
+            border-radius: 50px; cursor: pointer;
+            margin-top: 20px; box-shadow: 0 4px #01579b;
+            transition: 0.1s;
+        }
+
+        #water-btn:active { box-shadow: 0 0px #01579b; transform: translateY(4px); }
+        .hidden { display: none !important; }
+
+        /* รูปภาพความทรงจำ */
+        .pop-item {
+            position: absolute; width: 110px; height: 110px;
+            border: 4px solid white; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            object-fit: cover; border-radius: 12px;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 5; cursor: pointer;
+        }
+
+        .letter-pop {
+            position: absolute; width: 100px; height: 70px;
+            background: #fff3e0; border: 2px solid #ffab91;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            display: flex; justify-content: center; align-items: center;
+            border-radius: 5px; cursor: pointer; z-index: 6;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.8s ease-out; font-size: 2rem;
+        }
+
+        /* Overlay จดหมาย */
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); display: none;
+            justify-content: center; align-items: center; z-index: 100;
+        }
+
+        .letter-box {
+            background: white; padding: 40px; border-radius: 20px;
+            max-width: 80%; position: relative; line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <h1 id="status-text">รดน้ำให้ทานตะวันโตกัน (0/100)</h1>
+        
+        <div id="plant-display">
+            <!-- พื้นที่วาด SVG ต้นไม้ -->
+            <svg id="plant-svg" width="250" height="250" viewBox="0 0 200 200">
+                <!-- กระถาง (คงที่) -->
+                <path d="M70 160 L130 160 L140 120 L60 120 Z" fill="#8d6e63" />
+                <rect x="55" y="110" width="90" height="10" rx="2" fill="#795548" />
+                
+                <!-- ส่วนของต้นไม้ (จะเปลี่ยนไปตาม Stage) -->
+                <g id="plant-growth-layer"></g>
+            </svg>
+        </div>
+
+        <button id="water-btn" onclick="handleWater()">รดน้ำ 💦</button>
+    </div>
+
+    <div id="overlay" onclick="this.style.display='none'">
+        <div class="letter-box">
+            <h2 style="color: #e67e22;">ถึงคนเก่งของเค้า 🌻</h2>
+            <p>เย้! รดน้ำจนบานสะพรั่งเลยนะ เหมือนความรักของเราที่จะโตขึ้นทุกวัน</p>
+            <p>ขอบคุณที่อยู่เคียงข้างกันเสมอมานะ รักคุณที่สุดเลย!</p>
+            <small>(แตะเพื่อปิด)</small>
+        </div>
+    </div>
+
+    <script>
+        let count = 0;
+        const layer = document.getElementById('plant-growth-layer');
+        const status = document.getElementById('status-text');
+        const btn = document.getElementById('water-btn');
+
+        // ฟังก์ชันวาดรูปแต่ละระยะ
+        const drawStage = (stage) => {
+            layer.innerHTML = ""; // ล้างรูปเก่า
+            if (stage === 'seed') {
+                layer.innerHTML = `<circle cx="100" cy="115" r="5" fill="#3e2723" />`; // เมล็ดในดิน
+            } 
+            else if (stage === 'sprout') {
+                layer.innerHTML = `
+                    <path d="M100 115 Q105 90 115 85" stroke="#4caf50" stroke-width="4" fill="none" />
+                    <ellipse cx="118" cy="83" rx="8" ry="4" fill="#8bc34a" transform="rotate(-30 118 83)" />
+                `;
+            }
+            else if (stage === 'growing') {
+                layer.innerHTML = `
+                    <path d="M100 115 Q95 70 100 40" stroke="#4caf50" stroke-width="6" fill="none" />
+                    <ellipse cx="85" cy="80" rx="12" ry="6" fill="#4caf50" transform="rotate(20 85 80)" />
+                    <circle cx="100" cy="40" r="10" fill="#3e2723" stroke="#fbc02d" stroke-width="5" />
+                `;
+            }
+            else if (stage === 'sunflower') {
+                let petals = "";
+                for(let i=0; i<12; i++) {
+                    petals += `<ellipse cx="100" cy="15" rx="25" ry="8" fill="#ffeb3b" transform="rotate(${i*30} 100 40)" />`;
+                }
+                layer.innerHTML = `
+                    <path d="M100 115 L100 40" stroke="#4caf50" stroke-width="6" fill="none" />
+                    ${petals}
+                    <circle cx="100" cy="40" r="18" fill="#5d4037" />
+                `;
+            }
+            else if (stage === 'bouquet') {
+                layer.innerHTML = `
+                    <path d="M80 120 L120 120 L100 160 Z" fill="#fff9c4" /> <!-- กระดาษห่อ -->
+                    <circle cx="90" cy="100" r="15" fill="#ffeb3b" stroke="#5d4037" stroke-width="2" />
+                    <circle cx="110" cy="100" r="15" fill="#ffeb3b" stroke="#5d4037" stroke-width="2" />
+                    <circle cx="100" cy="85" r="15" fill="#ffeb3b" stroke="#5d4037" stroke-width="2" />
+                `;
+            }
+        };
+
+        // เริ่มต้นที่เมล็ด
+        drawStage('seed');
+
+        function handleWater() {
+            count++;
+            status.innerText = `รดน้ำให้ทานตะวันโตกัน (${count}/100)`;
+            
+            if(count === 30) drawStage('sprout');
+            if(count === 70) drawStage('growing');
+            if(count === 100) {
+                drawStage('sunflower');
+                status.innerText = "บานแล้ว! แตะที่ดอกไม้เพื่อเก็บเกี่ยว";
+                btn.classList.add('hidden');
+                document.getElementById('plant-display').onclick = harvest;
+            }
+        }
+
+        function harvest() {
+            drawStage('bouquet');
+            status.innerText = "แตะที่ช่อดอกไม้เพื่อดูความทรงจำ";
+            document.getElementById('plant-display').onclick = explode;
+        }
+
+        function explode() {
+            status.innerText = "ของขวัญจากใจให้คุณ ❤️";
+            document.getElementById('plant-display').onclick = null;
+
+            // สร้างรูป 10 รูป (ต้องมีไฟล์ photo1.jpg ถึง photo10.jpg)
+            for (let i = 1; i <= 10; i++) {
+                const img = document.createElement('img');
+                img.src = `photo${i}.jpg`; // เปลี่ยนเป็นลิงก์รูปจริงของคุณ
+                img.className = 'pop-item';
+                img.onerror = () => { img.style.background = '#ffd54f'; }; // ถ้าไม่มีรูปให้โชว์สีเหลือง
+                launch(img);
+            }
+
+            // สร้างจดหมาย
+            const letter = document.createElement('div');
+            letter.className = 'letter-pop';
+            letter.innerHTML = "✉️";
+            letter.onclick = () => document.getElementById('overlay').style.display = 'flex';
+            launch(letter);
+        }
+
+        function launch(el) {
+            document.body.appendChild(el);
+            const angle = Math.random() * Math.PI * 2;
+            const dist = window.innerWidth > 500 ? 200 : 130;
+            const x = Math.cos(angle) * dist;
+            const y = Math.sin(angle) * dist;
+
+            setTimeout(() => {
+                el.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) rotate(${Math.random()*40-20}deg)`;
+            }, 50);
+        }
+    </script>
+</body>
+</html>
