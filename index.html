@@ -20,20 +20,23 @@
         #status-text { 
             color: #5d4037; font-size: 1.2rem; margin-bottom: 20px; 
             z-index: 10; pointer-events: none; 
-            background: rgba(255,255,255,0.5); padding: 5px 15px; border-radius: 20px;
+            background: rgba(255,255,255,0.7); padding: 8px 20px; border-radius: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
         /* พื้นที่จิ้มรดน้ำ (เต็มจอ) */
         #touch-area {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 5;
+            cursor: pointer;
         }
 
         /* ส่วนแสดงรูปต้นไม้ */
         #plant-container {
             width: 320px; height: 450px;
             display: flex; justify-content: center; align-items: flex-end;
-            position: relative; z-index: 1; pointer-events: none;
+            position: relative; z-index: 1; 
+            pointer-events: none; /* เริ่มต้นห้ามจิ้มตัวรูป ให้จิ้มผ่านไปที่ touch-area */
         }
 
         #main-plant-img {
@@ -112,8 +115,9 @@
         const plantImg = document.getElementById('main-plant-img');
         const waterCan = document.getElementById('watering-can-img');
         const touchArea = document.getElementById('touch-area');
+        const plantContainer = document.getElementById('plant-container');
 
-        // ฟังก์ชันเปลี่ยนรูปต้นไม้ตามความถี่ (ปรับช่วงได้ตามต้องการ)
+        // ฟังก์ชันเปลี่ยนรูปต้นไม้
         function updatePlant(c) {
             if (c < 10) plantImg.src = 'stage1.png';
             else if (c < 30) plantImg.src = 'stage2.png';
@@ -124,9 +128,15 @@
                 plantImg.src = 'stage6.png';
                 statusText.innerText = "บานสะพรั่งแล้ว! แตะที่ดอกไม้เพื่อเก็บเกี่ยว";
                 isComplete = true;
-                // เปิดให้แตะที่รูปเพื่อไปต่อ
-                plantImg.parentElement.style.pointerEvents = "auto";
-                plantImg.parentElement.onclick = harvest;
+                
+                // แก้ไขปัญหาการค้าง: ปิดเลเยอร์รดน้ำเพื่อให้จิ้มตัวต้นไม้ได้
+                touchArea.style.display = "none";
+                waterCan.style.display = "none";
+                
+                // เปิดให้ Container รับการคลิกเพื่อเก็บเกี่ยว
+                plantContainer.style.pointerEvents = "auto";
+                plantContainer.style.cursor = "pointer";
+                plantContainer.onclick = harvest;
             }
         }
 
@@ -138,17 +148,16 @@
             statusText.innerText = `จิ้มหน้าจอเพื่อรดน้ำ (${count}/100)`;
             updatePlant(count);
 
-            // แสดงบัวรดน้ำตรงที่จิ้ม
+            // แสดงบัวรดน้ำ
             waterCan.style.display = "block";
             waterCan.style.left = (e.clientX - 60) + "px";
             waterCan.style.top = (e.clientY - 60) + "px";
             
-            // เอฟเฟกต์เด้งเบาๆ ตอนรด
-            plantImg.style.transform = "scale(1.03)";
+            // เอฟเฟกต์เด้ง
+            plantImg.style.transform = "scale(1.05)";
             setTimeout(() => { plantImg.style.transform = "scale(1)"; }, 50);
         });
 
-        // ซ่อนบัวรดน้ำเมื่อปล่อยมือ
         touchArea.addEventListener('pointerup', () => {
             if(!isComplete) waterCan.style.display = "none";
         });
@@ -156,23 +165,25 @@
         function harvest() {
             plantImg.src = 'bouquet.png'; // เปลี่ยนเป็นรูปช่อดอกไม้
             statusText.innerText = "แตะที่ช่อดอกไม้เพื่อดูความทรงจำของเรา";
-            plantImg.parentElement.onclick = explode;
+            
+            // เปลี่ยนไปใช้ฟังก์ชันระเบิดรูป
+            plantContainer.onclick = explode;
         }
 
         function explode() {
             statusText.innerText = "ของขวัญพิเศษสำหรับคุณ ❤️";
-            plantImg.parentElement.onclick = null;
+            plantContainer.onclick = null;
 
-            // กระจายรูปถ่าย 10 รูป (ต้องมีไฟล์ photo1.jpg - photo10.jpg)
+            // กระจายรูปถ่าย 10 รูป
             for (let i = 1; i <= 10; i++) {
                 const img = document.createElement('img');
                 img.src = `photo${i}.jpg`;
                 img.className = 'pop-item';
-                img.onerror = () => { img.style.background = "#ffd54f"; }; // กรณีหารูปไม่เจอ
+                img.onerror = () => { img.style.background = "#ffd54f"; };
                 spawnEffect(img);
             }
 
-            // กระจายจดหมาย 1 ฉบับ
+            // กระจายจดหมาย
             const letter = document.createElement('div');
             letter.className = 'letter-pop';
             letter.innerHTML = "✉️";
@@ -185,27 +196,26 @@
 
         function spawnEffect(el) {
             document.body.appendChild(el);
-            // สุ่มทิศทางและระยะทาง
             const angle = Math.random() * Math.PI * 2;
             const distance = window.innerWidth > 500 ? 250 : 180;
             const x = Math.cos(angle) * distance;
             const y = Math.sin(angle) * distance;
 
-            // ใช้ Timeout เพื่อให้เกิด Animation การเคลื่อนที่
             setTimeout(() => {
                 el.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) rotate(${Math.random()*60-30}deg)`;
             }, 50);
 
-            // ถ้าแตะรูปภาพ ให้รูปนั้นเด่นขึ้นมา
+            // ถ้าเป็นรูปภาพ ให้กดเพื่อขยายได้
             if(el.tagName === 'IMG') {
-                el.addEventListener('click', () => {
+                el.onclick = () => {
                     el.style.zIndex = "100";
-                    el.style.transform += " scale(1.5)";
+                    el.style.transition = "0.3s";
+                    el.style.transform += " scale(1.8)";
                     setTimeout(() => {
                         el.style.zIndex = "30";
-                        el.style.transform = el.style.transform.replace(" scale(1.5)", "");
-                    }, 2000);
-                });
+                        el.style.transform = el.style.transform.replace(" scale(1.8)", "");
+                    }, 2500);
+                };
             }
         }
     </script>
