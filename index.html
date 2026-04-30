@@ -30,12 +30,12 @@
             100% { transform: translate(400px, -500px) rotate(360deg); opacity: 0; }
         }
 
+        /* ตัวหนังสือแบบไม่มีแถบขาว */
         #status-text { 
-            color: #5d4037; font-size: 0.9rem; margin-bottom: 20px; 
-            z-index: 10; background: rgba(255,255,255,0.85); 
-            padding: 10px 20px; border-radius: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            text-align: center; width: 80%;
+            color: #5d4037; font-size: 1rem; margin-bottom: 20px; 
+            z-index: 10; text-align: center; width: 85%;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8); /* ช่วยให้อ่านง่ายขึ้นบนพื้นหลัง */
+            font-weight: 600;
         }
 
         #plant-container {
@@ -48,6 +48,15 @@
             max-width: 100%; max-height: 100%;
             object-fit: contain;
             transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* แอนิเมชันเด้งๆ สำหรับช่อดอกไม้ */
+        .bounce-bouquet {
+            animation: bouquetFloat 2s ease-in-out infinite;
+        }
+        @keyframes bouquetFloat {
+            0%, 100% { transform: scale(1.35) translateY(0); }
+            50% { transform: scale(1.4) translateY(-15px); }
         }
 
         #nong-img {
@@ -68,7 +77,6 @@
             to { transform: translate(65px, -75px) scale(1.05); }
         }
 
-        /* รูปความทรงจำที่เด้งตลอดเวลา */
         .memory-seed {
             position: absolute;
             width: 50px; height: 50px; 
@@ -89,33 +97,32 @@
             50% { margin-top: -12px; transform: translate(-50%, -50%) scale(1.1); }
         }
 
+        /* ปรับขนาดการดูรูปให้เล็กลงไม่ล้นจอ */
         #photo-viewer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); display: none;
             justify-content: center; align-items: center; z-index: 300;
         }
         .view-card {
-            width: 82%; max-width: 300px;
-            background: white; padding: 12px 12px 25px 12px;
+            width: 75%; max-width: 260px; /* ลดขนาดลงเพื่อความพอดี */
+            background: white; padding: 10px 10px 20px 10px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             animation: popNormal 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         @keyframes popNormal { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .view-card img { width: 100%; height: auto; display: block; margin-bottom: 12px; }
-        .view-caption { text-align: center; color: #444; font-size: 0.9rem; font-weight: 600; }
+        .view-card img { width: 100%; height: auto; display: block; margin-bottom: 12px; border-radius: 2px; }
+        .view-caption { text-align: center; color: #444; font-size: 0.85rem; font-weight: 600; }
 
         #touch-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 6; cursor: pointer; }
         #watering-can-img { position: fixed; width: 80px; height: 80px; pointer-events: none; display: none; z-index: 100; transform: rotate(-20deg); }
 
-        /* ปุ่มจดหมาย */
-        .letter-btn {
+        /* เปลี่ยนซองจดหมายเป็น box.png */
+        #box-btn {
             position: absolute; top: 50%; left: 50%; 
-            width: 55px; height: 45px; background: #fff; 
-            border: 1px solid #ffccbc; display: flex; 
-            justify-content: center; align-items: center; 
-            z-index: 100; cursor: pointer; font-size: 1.4rem; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
-            border-radius: 10px;
+            width: 60px; height: auto;
+            z-index: 100; cursor: pointer; 
+            transform: translate(-50%, -50%) scale(0);
+            transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             animation: bounceSeed 2.5s ease-in-out infinite;
         }
 
@@ -124,7 +131,12 @@
             background: rgba(0,0,0,0.9); display: none;
             justify-content: center; align-items: center; z-index: 400;
         }
-        .letter-content { background: white; padding: 30px; border-radius: 20px; max-width: 80%; text-align: center; }
+        /* เปลี่ยนจดหมายเป็นไฟล์ note.png */
+        #note-img-display {
+            width: 85%; max-width: 320px;
+            height: auto;
+            animation: popNormal 0.5s ease-out;
+        }
     </style>
 </head>
 <body>
@@ -139,6 +151,9 @@
     <div id="touch-area"></div>
     <img id="watering-can-img" src="water-can.png">
 
+    <!-- เปลี่ยนซองจดหมายเป็น box.png -->
+    <img id="box-btn" src="box.png" onclick="openNote()">
+
     <div id="photo-viewer" onclick="this.style.display='none'">
         <div class="view-card" onclick="event.stopPropagation()">
             <img id="view-img" src="">
@@ -147,11 +162,7 @@
     </div>
 
     <div id="overlay" onclick="this.style.display='none'">
-        <div class="letter-content">
-            <h2 style="color:#e67e22; margin-top:0;">Happy Anniversary!</h2>
-            <p>ยินดีที่ได้เติบโตไปพร้อมๆ กันนะ</p>
-            <p><b>"รักคุณที่สุด"</b></p>
-        </div>
+        <img id="note-img-display" src="note.png">
     </div>
 
     <script>
@@ -179,6 +190,7 @@
         const touchArea = document.getElementById('touch-area');
         const nongImg = document.getElementById('nong-img');
         const plantContainer = document.getElementById('plant-container');
+        const boxBtn = document.getElementById('box-btn');
 
         touchArea.addEventListener('pointerdown', (e) => {
             if (isComplete) return;
@@ -215,7 +227,8 @@
             nongImg.style.opacity = "0";
             setTimeout(() => {
                 plantImg.src = 'bouquet.png';
-                plantImg.style.transform = "scale(1.35)"; // เด้งออกมาใหญ่เหมือนเดิม
+                plantImg.style.transform = "scale(1.35)";
+                plantImg.classList.add('bounce-bouquet'); // เพิ่มเด้งๆ ตลอดเวลา
                 statusText.innerText = "แตะที่ช่อดอกไม้สิ!";
                 setTimeout(() => {
                     plantContainer.style.pointerEvents = "auto";
@@ -227,7 +240,6 @@
         function explode() {
             statusText.style.opacity = "0";
             plantContainer.onclick = null;
-            // ช่อดอกไม้คงขนาดเดิม (Scale 1.35) ไม่ย่อเล็กลง
 
             for (let i = 0; i < 10; i++) {
                 const img = document.createElement('img');
@@ -238,8 +250,6 @@
                 img.onclick = (e) => { e.stopPropagation(); showPhoto(img.src, captions[i]); };
                 document.body.appendChild(img);
                 
-                // กระจายแบบไม่เป็นระเบียบ (Organic Random)
-                // สุ่มองศาอิสระ (0-360) และสุ่มระยะห่าง
                 const angle = Math.random() * Math.PI * 2; 
                 const dist = 140 + (Math.random() * 60); 
                 const x = Math.cos(angle) * dist;
@@ -250,21 +260,15 @@
                     img.style.left = `calc(50% + ${x}px)`;
                     img.style.top = `calc(50% + ${y}px)`;
                     img.style.transform = `translate(-50%, -50%) rotate(${rotate}deg) scale(1)`;
-                    img.style.animationDelay = (Math.random() * 2) + "s"; // ให้เด้งไม่พร้อมกันดูธรรมชาติ
+                    img.style.animationDelay = (Math.random() * 2) + "s";
                 }, i * 60);
             }
 
-            // ปุ่มจดหมาย
-            const btn = document.createElement('div');
-            btn.className = "letter-btn";
-            btn.innerHTML = "✉️";
-            btn.onclick = () => document.getElementById('overlay').style.display = 'flex';
-            document.body.appendChild(btn);
+            // แสดง box.png
             setTimeout(() => {
-                btn.style.left = "50%";
-                btn.style.top = "calc(50% + 220px)";
-                btn.style.transform = "translate(-50%, -50%) scale(1)";
-                btn.style.animationDelay = "0.5s";
+                boxBtn.style.left = "50%";
+                boxBtn.style.top = "calc(50% + 220px)";
+                boxBtn.style.transform = "translate(-50%, -50%) scale(1)";
             }, 600);
         }
 
@@ -272,6 +276,10 @@
             document.getElementById('view-img').src = src;
             document.getElementById('view-caption').innerText = text;
             document.getElementById('photo-viewer').style.display = 'flex';
+        }
+
+        function openNote() {
+            document.getElementById('overlay').style.display = 'flex';
         }
     </script>
 </body>
