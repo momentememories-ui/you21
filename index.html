@@ -17,7 +17,6 @@
             position: relative;
         }
 
-        /* ผีเสื้อบินวน */
         .butterfly {
             position: absolute; width: 20px; height: 20px;
             pointer-events: none; z-index: 1; font-size: 20px;
@@ -30,11 +29,10 @@
             100% { transform: translate(400px, -500px) rotate(360deg); opacity: 0; }
         }
 
-        /* ตัวหนังสือแบบไม่มีแถบขาว */
         #status-text { 
             color: #5d4037; font-size: 1rem; margin-bottom: 20px; 
             z-index: 10; text-align: center; width: 85%;
-            text-shadow: 1px 1px 2px rgba(255,255,255,0.8); /* ช่วยให้อ่านง่ายขึ้นบนพื้นหลัง */
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
             font-weight: 600;
         }
 
@@ -50,7 +48,6 @@
             transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* แอนิเมชันเด้งๆ สำหรับช่อดอกไม้ */
         .bounce-bouquet {
             animation: bouquetFloat 2s ease-in-out infinite;
         }
@@ -97,14 +94,13 @@
             50% { margin-top: -12px; transform: translate(-50%, -50%) scale(1.1); }
         }
 
-        /* ปรับขนาดการดูรูปให้เล็กลงไม่ล้นจอ */
         #photo-viewer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); display: none;
             justify-content: center; align-items: center; z-index: 300;
         }
         .view-card {
-            width: 75%; max-width: 260px; /* ลดขนาดลงเพื่อความพอดี */
+            width: 75%; max-width: 260px;
             background: white; padding: 10px 10px 20px 10px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             animation: popNormal 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -116,7 +112,6 @@
         #touch-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 6; cursor: pointer; }
         #watering-can-img { position: fixed; width: 80px; height: 80px; pointer-events: none; display: none; z-index: 100; transform: rotate(-20deg); }
 
-        /* เปลี่ยนซองจดหมายเป็น box.png */
         #box-btn {
             position: absolute; top: 50%; left: 50%; 
             width: 60px; height: auto;
@@ -124,6 +119,7 @@
             transform: translate(-50%, -50%) scale(0);
             transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             animation: bounceSeed 2.5s ease-in-out infinite;
+            display: none; /* เริ่มต้นซ่อนไว้ก่อน */
         }
 
         #overlay {
@@ -131,7 +127,6 @@
             background: rgba(0,0,0,0.9); display: none;
             justify-content: center; align-items: center; z-index: 400;
         }
-        /* เปลี่ยนจดหมายเป็นไฟล์ note.png */
         #note-img-display {
             width: 85%; max-width: 320px;
             height: auto;
@@ -140,6 +135,9 @@
     </style>
 </head>
 <body>
+
+    <!-- เพลงพื้นหลัง -->
+    <audio id="bg-music" src="song.mp3" loop></audio>
 
     <h1 id="status-text">แตะหน้าจอเพื่อรดน้ำให้เค้าหน่อยนะ 🌻</h1>
 
@@ -151,7 +149,6 @@
     <div id="touch-area"></div>
     <img id="watering-can-img" src="water-can.png">
 
-    <!-- เปลี่ยนซองจดหมายเป็น box.png -->
     <img id="box-btn" src="box.png" onclick="openNote()">
 
     <div id="photo-viewer" onclick="this.style.display='none'">
@@ -191,6 +188,7 @@
         const nongImg = document.getElementById('nong-img');
         const plantContainer = document.getElementById('plant-container');
         const boxBtn = document.getElementById('box-btn');
+        const bgMusic = document.getElementById('bg-music');
 
         touchArea.addEventListener('pointerdown', (e) => {
             if (isComplete) return;
@@ -223,12 +221,15 @@
         touchArea.addEventListener('pointerup', () => { if(waterCan) waterCan.style.display = "none"; });
 
         nongImg.onclick = () => {
+            // เล่นเพลงทันทีที่กดน้อง
+            bgMusic.play().catch(e => console.log("Music play blocked by browser. User interaction needed."));
+            
             nongImg.style.transform = "translate(150px, -200px) scale(0)";
             nongImg.style.opacity = "0";
             setTimeout(() => {
                 plantImg.src = 'bouquet.png';
                 plantImg.style.transform = "scale(1.35)";
-                plantImg.classList.add('bounce-bouquet'); // เพิ่มเด้งๆ ตลอดเวลา
+                plantImg.classList.add('bounce-bouquet');
                 statusText.innerText = "แตะที่ช่อดอกไม้สิ!";
                 setTimeout(() => {
                     plantContainer.style.pointerEvents = "auto";
@@ -264,11 +265,14 @@
                 }, i * 60);
             }
 
-            // แสดง box.png
+            // แสดง box.png หลังจากกดช่อดอกไม้แล้วเท่านั้น
             setTimeout(() => {
-                boxBtn.style.left = "50%";
-                boxBtn.style.top = "calc(50% + 220px)";
-                boxBtn.style.transform = "translate(-50%, -50%) scale(1)";
+                boxBtn.style.display = "block";
+                setTimeout(() => {
+                    boxBtn.style.left = "50%";
+                    boxBtn.style.top = "calc(50% + 220px)";
+                    boxBtn.style.transform = "translate(-50%, -50%) scale(1)";
+                }, 50);
             }, 600);
         }
 
