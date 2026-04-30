@@ -119,7 +119,7 @@
             transform: translate(-50%, -50%) scale(0);
             transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             animation: bounceSeed 2.5s ease-in-out infinite;
-            display: none; /* เริ่มต้นซ่อนไว้ก่อน */
+            display: none;
         }
 
         #overlay {
@@ -136,7 +136,6 @@
 </head>
 <body>
 
-    <!-- เพลงพื้นหลัง -->
     <audio id="bg-music" src="song.mp3" loop></audio>
 
     <h1 id="status-text">แตะหน้าจอเพื่อรดน้ำให้เค้าหน่อยนะ 🌻</h1>
@@ -193,7 +192,19 @@
         touchArea.addEventListener('pointerdown', (e) => {
             if (isComplete) return;
             count++;
-            statusText.innerText = `รดน้ำกันเถอะ (${count}%)`;
+            
+            // เปลี่ยนข้อความตามช่วงการเติบโต
+            if (count <= 20) {
+                statusText.innerText = `เย้เริ่มโตแล้ว (${count}%)`;
+            } else if (count <= 40) {
+                statusText.innerText = `ตั้งใจเลี้ยงอย่างดีเลยนะ (${count}%)`;
+            } else if (count <= 60) {
+                statusText.innerText = `ต้นไม้แห่งความทรงจำกำลังโต (${count}%)`;
+            } else if (count <= 80) {
+                statusText.innerText = `อีกนิดเดียวจะบานแล้วนะ (${count}%)`;
+            } else {
+                statusText.innerText = `ใกล้เห็นความสวยงามแล้ว! (${count}%)`;
+            }
             
             if(count === 20) plantImg.src = 'stage2.png';
             if(count === 40) plantImg.src = 'stage3.png';
@@ -221,9 +232,7 @@
         touchArea.addEventListener('pointerup', () => { if(waterCan) waterCan.style.display = "none"; });
 
         nongImg.onclick = () => {
-            // เล่นเพลงทันทีที่กดน้อง
-            bgMusic.play().catch(e => console.log("Music play blocked by browser. User interaction needed."));
-            
+            bgMusic.play().catch(e => console.log("Music play blocked"));
             nongImg.style.transform = "translate(150px, -200px) scale(0)";
             nongImg.style.opacity = "0";
             setTimeout(() => {
@@ -247,7 +256,6 @@
                 img.src = `photo${i+1}.jpg`;
                 img.className = 'memory-seed';
                 img.onerror = function() { this.src = 'https://via.placeholder.com/60'; };
-                
                 img.onclick = (e) => { e.stopPropagation(); showPhoto(img.src, captions[i]); };
                 document.body.appendChild(img);
                 
@@ -265,7 +273,6 @@
                 }, i * 60);
             }
 
-            // แสดง box.png หลังจากกดช่อดอกไม้แล้วเท่านั้น
             setTimeout(() => {
                 boxBtn.style.display = "block";
                 setTimeout(() => {
