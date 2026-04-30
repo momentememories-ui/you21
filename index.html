@@ -20,9 +20,8 @@
         /* พื้นหลังผีเสื้อ */
         .butterfly {
             position: absolute; width: 20px; height: 20px;
-            pointer-events: none; z-index: 1;
-            font-size: 20px;
-            animation: flying 10s linear infinite;
+            pointer-events: none; z-index: 1; font-size: 20px;
+            animation: flying 12s linear infinite;
         }
         @keyframes flying {
             0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
@@ -48,7 +47,7 @@
         #main-plant-img {
             max-width: 100%; max-height: 100%;
             object-fit: contain;
-            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 1s ease-out; /* ปรับให้สมูทขึ้น ไม่เด้งแรง */
         }
 
         #nong-img {
@@ -62,53 +61,62 @@
         #nong-img.show { 
             opacity: 1;
             transform: translate(60px, -60px) scale(1);
-            animation: pulseNong 2s ease-in-out infinite alternate;
+            animation: floatingNong 2s ease-in-out infinite alternate;
         }
-        @keyframes pulseNong {
+        @keyframes floatingNong {
             from { transform: translate(60px, -60px) scale(1); }
-            to { transform: translate(65px, -70px) scale(1.1); }
+            to { transform: translate(65px, -75px) scale(1.05); }
         }
 
-        /* เม็ดรูปภาพ: ปรับขนาดและเงาให้กดง่ายขึ้น */
+        /* เม็ดรูปภาพ: มีแอนิเมชันเด้งๆ ตลอดเวลา */
         .memory-seed {
             position: absolute;
-            width: 45px; height: 45px; 
+            width: 48px; height: 48px; 
             padding: 3px; background: white;
             border: 1px solid #ddd;
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
             top: 50%; left: 50%;
-            transition: all 1s cubic-bezier(0.165, 0.84, 0.44, 1);
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 50; 
             cursor: pointer; pointer-events: auto;
             object-fit: cover;
-            transform: translate(-50%, -50%) scale(0);
             border-radius: 4px;
+            animation: bounceAlways 2.5s ease-in-out infinite;
         }
 
-        /* ปรับขนาดการดูรูปไม่ให้ล้นจอ */
+        @keyframes bounceAlways {
+            0%, 100% { transform: translate(-50%, -50%) scale(1) translateY(0); }
+            50% { transform: translate(-50%, -50%) scale(1.08) translateY(-10px); }
+        }
+
         #photo-viewer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); display: none;
             justify-content: center; align-items: center; z-index: 300;
         }
         .view-card {
-            width: 85%; /* ปรับขนาดความกว้างไม่ให้ล้น */
-            max-width: 300px;
+            width: 80%; max-width: 290px;
             background: white; padding: 12px 12px 25px 12px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             animation: popNormal 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         @keyframes popNormal { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .view-card img { width: 100%; height: auto; display: block; margin-bottom: 12px; border-radius: 2px; }
-        .view-caption { text-align: center; color: #444; font-size: 0.9rem; font-weight: 600; line-height: 1.4; }
+        .view-card img { width: 100%; height: auto; display: block; margin-bottom: 12px; }
+        .view-caption { text-align: center; color: #444; font-size: 0.9rem; font-weight: 600; }
 
         #touch-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 6; cursor: pointer; }
         #watering-can-img { position: fixed; width: 80px; height: 80px; pointer-events: none; display: none; z-index: 100; transform: rotate(-20deg); }
 
-        .pulse-bouquet { animation: pulse 1.5s ease-in-out infinite; }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.03); }
+        /* จดหมายเด้งๆ */
+        .letter-btn {
+            position: absolute; top: 50%; left: 50%; 
+            width: 50px; height: 40px; background: #fff; 
+            border: 1px solid #ffccbc; display: flex; 
+            justify-content: center; align-items: center; 
+            z-index: 100; cursor: pointer; font-size: 1.3rem; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+            border-radius: 8px;
+            animation: bounceAlways 2s ease-in-out infinite;
         }
 
         #overlay {
@@ -116,7 +124,7 @@
             background: rgba(0,0,0,0.9); display: none;
             justify-content: center; align-items: center; z-index: 400;
         }
-        .letter { background: white; padding: 30px; border-radius: 20px; max-width: 80%; text-align: center; }
+        .letter-content { background: white; padding: 30px; border-radius: 20px; max-width: 80%; text-align: center; }
     </style>
 </head>
 <body>
@@ -135,12 +143,11 @@
         <div class="view-card" onclick="event.stopPropagation()">
             <img id="view-img" src="">
             <div id="view-caption" class="view-caption"></div>
-            <p style="text-align:center; font-size:0.7rem; color:#aaa; margin-top:15px;">แตะที่ว่างเพื่อปิด</p>
         </div>
     </div>
 
     <div id="overlay" onclick="this.style.display='none'">
-        <div class="letter">
+        <div class="letter-content">
             <h2 style="color:#e67e22; margin-top:0;">Happy Anniversary!</h2>
             <p>ยินดีที่ได้เติบโตไปพร้อมๆ กันนะ</p>
             <p><b>"รักคุณที่สุด"</b></p>
@@ -164,6 +171,8 @@
 
         let count = 0;
         let isComplete = false;
+        const captions = ["จุดเริ่มต้น", "ความสุข", "ข้างกัน", "วันพิเศษ", "เม็ดความรัก", "ใจฟู", "เติบโต", "คนเก่ง", "รอยยิ้ม", "รักที่สุด"];
+
         const statusText = document.getElementById('status-text');
         const plantImg = document.getElementById('main-plant-img');
         const waterCan = document.getElementById('watering-can-img');
@@ -171,19 +180,10 @@
         const nongImg = document.getElementById('nong-img');
         const plantContainer = document.getElementById('plant-container');
 
-        const captions = ["จุดเริ่มต้นความทรงจำ", "รอยยิ้มที่แสนพิเศษ", "ขอบคุณที่อยู่ข้างกัน", "วันที่มีความสุขที่สุด", "เม็ดความรักเล็กๆ", "ใจฟูทุกครั้งที่มอง", "เติบโตไปด้วยกันนะ", "คนเก่งของเค้า", "เจ้าของรอยยิ้มนี้", "รักที่สุดเลยครับ"];
-
-        function getMsg(c) {
-            if (c < 10) return `ขอบคุณนะ! รดต่ออีกนิด (${c}%)`;
-            if (c < 50) return `น้องเริ่มโตแล้วนะ (${c}%)`;
-            if (c < 100) return `ใกล้จะบานแล้วล่ะ (${c}%)`;
-            return "บานสะพรั่งแล้ว!";
-        }
-
         touchArea.addEventListener('pointerdown', (e) => {
             if (isComplete) return;
             count++;
-            statusText.innerText = getMsg(count);
+            statusText.innerText = count < 100 ? `รดน้ำกันเถอะ (${count}%)` : "บานสะพรั่งแล้ว!";
             
             if(count === 20) plantImg.src = 'stage2.png';
             if(count === 40) plantImg.src = 'stage3.png';
@@ -195,82 +195,76 @@
                 isComplete = true;
                 waterCan.remove();
                 touchArea.remove();
-                setTimeout(() => {
-                    nongImg.classList.add('show');
-                    statusText.innerText = "ลองกดดูสิ... อะไรน้าา?";
-                }, 800);
+                setTimeout(() => { nongImg.classList.add('show'); statusText.innerText = "ลองกดดูสิ... อะไรน้าา?"; }, 800);
             } else {
                 waterCan.style.display = "block";
                 waterCan.style.left = (e.clientX - 40) + "px";
                 waterCan.style.top = (e.clientY - 40) + "px";
-                plantImg.style.transform = "scale(1.05)";
+                plantImg.style.transform = "scale(1.03)";
                 setTimeout(() => plantImg.style.transform = "scale(1)", 50);
             }
         });
 
-        touchArea.addEventListener('pointerup', () => { 
-            const can = document.getElementById('watering-can-img');
-            if(can) can.style.display = "none"; 
-        });
+        touchArea.addEventListener('pointerup', () => { if(waterCan) waterCan.style.display = "none"; });
 
         nongImg.onclick = () => {
-            nongImg.style.transform = "translate(200px, -300px) scale(0)";
+            nongImg.style.transform = "translate(150px, -200px) scale(0)";
             nongImg.style.opacity = "0";
             setTimeout(() => {
-                plantImg.style.transition = "all 0.6s cubic-bezier(0.68, -0.6, 0.32, 2.5)";
                 plantImg.src = 'bouquet.png';
-                plantImg.style.transform = "scale(1.3)";
-                statusText.innerText = "แตะที่ช่อดอกไม้เพื่อดูรูปนะ";
+                plantImg.style.transform = "scale(1.2)"; // พุ่งออกแบบสมูท
+                statusText.innerText = "แตะที่ช่อดอกไม้สิ!";
                 setTimeout(() => {
                     plantImg.style.transform = "scale(1)";
-                    plantImg.classList.add('pulse-bouquet');
                     plantContainer.style.pointerEvents = "auto";
                     plantContainer.onclick = explode;
-                }, 400);
-            }, 300);
+                }, 500);
+            }, 400);
         };
 
         function explode() {
             statusText.style.opacity = "0";
-            plantContainer.classList.remove('pulse-bouquet');
             plantContainer.onclick = null;
-            
-            // ย่อช่อดอกไม้ลงเพื่อไม่ให้บังรูปตอนกระจาย
-            plantImg.style.transform = "scale(0.6) translateY(40px)";
+            plantImg.style.transform = "scale(0.6) translateY(50px)";
 
-            const totalPhotos = 10;
-            const radius = 145; // รัศมีวงกลมที่รูปจะกระจายตัวออกไป
-
-            for (let i = 0; i < totalPhotos; i++) {
+            for (let i = 0; i < 10; i++) {
                 const img = document.createElement('img');
                 img.src = `photo${i+1}.jpg`;
                 img.className = 'memory-seed';
                 img.onerror = function() { this.src = 'https://via.placeholder.com/60'; };
                 
-                img.onclick = (e) => {
-                    e.stopPropagation();
-                    showPhoto(img.src, captions[i]);
-                };
-                
+                img.onclick = (e) => { e.stopPropagation(); showPhoto(img.src, captions[i]); };
                 document.body.appendChild(img);
                 
-                // คำนวณตำแหน่งแบบวงกลมเป๊ะๆ ไม่ให้ทับกัน
-                const angle = (i / (totalPhotos / 2)) * Math.PI; 
-                const x = Math.cos(angle) * radius;
-                const y = Math.sin(angle) * radius;
+                // กระจายแบบไม่เป็นระเบียบ (Random organic scatter)
+                const angle = (i / 5) * Math.PI + (Math.random() * 0.5); 
+                const dist = 130 + (Math.random() * 40); 
+                const x = Math.cos(angle) * dist;
+                const y = Math.sin(angle) * dist;
+                const rotate = (Math.random() - 0.5) * 30; // สุ่มเอียงรูป
 
                 setTimeout(() => {
-                    img.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(1) rotate(${(Math.random()-0.5)*15}deg)`;
-                }, 100 * i);
+                    // ใช้แอนิเมชันเด้งๆ พร้อมกับตำแหน่งกระจาย
+                    img.style.left = `calc(50% + ${x}px)`;
+                    img.style.top = `calc(50% + ${y}px)`;
+                    img.style.transform = `translate(-50%, -50%) rotate(${rotate}deg) scale(1)`;
+                    // ปรับ delay แอนิเมชัน bounce ให้ดูไม่พร้อมกัน จะดูธรรมชาติกว่า
+                    img.style.animationDelay = (Math.random() * 2) + "s";
+                }, i * 80);
             }
 
-            // ปุ่มจดหมายลอยมาด้านล่างสุด
+            // ปุ่มจดหมายเด้งๆ
             const btn = document.createElement('div');
-            btn.style.cssText = "position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:50px; height:40px; background:#fff; border:1px solid #ffccbc; display:flex; justify-content:center; align-items:center; z-index:100; cursor:pointer; font-size:1.3rem; box-shadow:0 5px 15px rgba(0,0,0,0.1); transition: 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); border-radius:8px;";
+            btn.className = "letter-btn";
             btn.innerHTML = "✉️";
             btn.onclick = () => document.getElementById('overlay').style.display = 'flex';
             document.body.appendChild(btn);
-            setTimeout(() => btn.style.transform = "translate(calc(-50% + 0px), calc(-50% + 200px))", 500);
+            setTimeout(() => {
+                btn.style.left = "50%";
+                btn.style.top = "calc(50% + 210px)";
+                btn.style.transform = "translate(-50%, -50%) scale(1)";
+                btn.style.animationDelay = "0.5s";
+            }, 600);
         }
 
         function showPhoto(src, text) {
