@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Our Memory 🌻</title>
+    <title>Memory Flowers 🌻</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;600&display=swap" rel="stylesheet">
     <style>
         body {
@@ -34,7 +34,6 @@
             transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* รูป nong.png เด้งออกข้างๆ ไม่ทับต้นไม้ */
         #nong-img {
             position: absolute; bottom: 55%; right: -40px;
             transform: scale(0); width: 85px; height: auto;
@@ -48,7 +47,6 @@
             50% { transform: translateY(-12px); }
         }
 
-        /* เม็ดความทรงจำจิ๋วมากๆ */
         .memory-seed {
             position: absolute;
             width: 30px; height: 30px; 
@@ -62,7 +60,6 @@
             transform: translate(-50%, -50%) scale(0);
         }
 
-        /* หน้าต่างดูรูปขยาย (ล็อคให้ไม่เอียงเด็ดขาด) */
         #photo-viewer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8); display: none;
@@ -72,15 +69,14 @@
             width: 260px; background: white; padding: 10px 10px 25px 10px;
             box-shadow: 0 15px 40px rgba(0,0,0,0.4);
             animation: popUp 0.3s ease-out;
-            /* ล็อคการหมุนให้เป็น 0 องศาตรงๆ */
             transform: rotate(0deg) !important; 
         }
         @keyframes popUp { 
-            from { transform: scale(0.8) rotate(0deg); opacity: 0; } 
-            to { transform: scale(1) rotate(0deg); opacity: 1; } 
+            from { transform: scale(0.8); opacity: 0; } 
+            to { transform: scale(1); opacity: 1; } 
         }
-        .view-card img { width: 100%; display: block; margin-bottom: 10px; transform: rotate(0deg) !important; }
-        .view-caption { text-align: center; color: #444; font-size: 0.9rem; font-weight: 600; transform: rotate(0deg) !important; }
+        .view-card img { width: 100%; display: block; margin-bottom: 10px; }
+        .view-caption { text-align: center; color: #444; font-size: 0.9rem; font-weight: 600; }
 
         #touch-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; cursor: pointer; }
         #watering-can-img { position: fixed; width: 70px; height: 70px; pointer-events: none; display: none; z-index: 20; transform: rotate(-20deg); }
@@ -137,7 +133,7 @@
             if (c < 50) return `เย้! เริ่มโตแล้ว (${c}%)`;
             if (c < 75) return `เก่งมาก ต้นไม้สดใสขึ้นนะ (${c}%)`;
             if (c < 100) return `อีกนิดเดียวจะบานแล้ว (${c}%)`;
-            return "ว้าว! บานสะพรั่งเลย";
+            return "บานสะพรั่งเลย!";
         }
 
         touchArea.addEventListener('pointerdown', (e) => {
@@ -145,36 +141,44 @@
             count++;
             statusText.innerText = getMsg(count);
             
+            // เปลี่ยน Stage ต้นไม้
             if(count === 20) plantImg.src = 'stage2.png';
             if(count === 40) plantImg.src = 'stage3.png';
             if(count === 60) plantImg.src = 'stage4.png';
             if(count === 80) plantImg.src = 'stage5.png';
+            
             if(count >= 100) {
                 plantImg.src = 'stage6.png';
                 isComplete = true;
-                // บัวรดน้ำหายไปทันที
-                waterCan.style.display = "none";
-                touchArea.style.display = "none";
+
+                // สั่งลบออกจากหน้าจอทันที (Remove) ป้องกันการค้าง
+                waterCan.remove();
+                touchArea.remove();
+
                 setTimeout(() => {
                     nongImg.classList.add('show');
                     statusText.innerText = "กดที่น้องเพื่อรับช่อดอกไม้!";
                 }, 400);
+            } else {
+                // แสดงบัวรดน้ำตามตำแหน่งนิ้ว
+                waterCan.style.display = "block";
+                waterCan.style.left = (e.clientX - 35) + "px";
+                waterCan.style.top = (e.clientY - 35) + "px";
+                plantImg.style.transform = "scale(1.05)";
+                setTimeout(() => plantImg.style.transform = "scale(1)", 50);
             }
-
-            waterCan.style.display = "block";
-            waterCan.style.left = (e.clientX - 35) + "px";
-            waterCan.style.top = (e.clientY - 35) + "px";
-            plantImg.style.transform = "scale(1.05)";
-            setTimeout(() => plantImg.style.transform = "scale(1)", 50);
         });
 
-        touchArea.addEventListener('pointerup', () => { if(!isComplete) waterCan.style.display="none"; });
+        touchArea.addEventListener('pointerup', () => { 
+            // ตรวจเช็คว่าถ้ายังรดไม่ครบ ให้ซ่อนบัวเมื่อยกนิ้ว
+            const can = document.getElementById('watering-can-img');
+            if(can) can.style.display = "none"; 
+        });
 
         nongImg.onclick = () => {
             nongImg.style.transform = "scale(0) translateY(-100px)";
             nongImg.style.opacity = "0";
             setTimeout(() => {
-                // ช่อเด้งออกมาแบบแรงๆ ตื่นเต้นๆ
                 plantImg.style.transition = "all 0.5s cubic-bezier(0.68, -0.6, 0.32, 1.8)";
                 plantImg.src = 'bouquet.png';
                 plantImg.style.transform = "scale(1.3)";
@@ -208,7 +212,6 @@
                 const y = Math.sin(angle) * dist;
 
                 setTimeout(() => {
-                    // ตอนกระจายไม่เอียง
                     img.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(1)`;
                 }, 40 * i);
             }
