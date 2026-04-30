@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memory Blossom 🌻</title>
+    <title>Memory Garden 🌻🦋</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;600&display=swap" rel="stylesheet">
     <style>
         body {
@@ -14,20 +14,35 @@
             height: 100vh; overflow: hidden;
             touch-action: manipulation;
             user-select: none;
+            position: relative;
+        }
+
+        /* พื้นหลังผีเสื้อ */
+        .butterfly {
+            position: absolute; width: 20px; height: 20px;
+            pointer-events: none; z-index: 1;
+            font-size: 20px;
+            animation: flying 10s linear infinite;
+        }
+        @keyframes flying {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translate(400px, -500px) rotate(360deg); opacity: 0; }
         }
 
         #status-text { 
             color: #5d4037; font-size: 1rem; margin-bottom: 20px; 
-            z-index: 10; background: rgba(255,255,255,0.8); 
-            padding: 8px 20px; border-radius: 20px;
-            transition: all 0.5s ease;
+            z-index: 10; background: rgba(255,255,255,0.85); 
+            padding: 10px 25px; border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            text-align: center;
         }
 
         #plant-container {
             width: 280px; height: 380px;
             display: flex; justify-content: center; align-items: flex-end;
-            position: relative; z-index: 2; 
-            transition: transform 0.5s ease;
+            position: relative; z-index: 5; 
         }
 
         #main-plant-img {
@@ -36,83 +51,78 @@
             transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* เอฟเฟกต์น้องลอยออกมาจากดอกไม้ */
+        /* น้องซูมออกมาจากกลางทานตะวัน */
         #nong-img {
             position: absolute; 
-            bottom: 60%; left: 50%;
-            transform: translate(-50%, 50%) scale(0);
+            bottom: 55%; left: 50%;
+            transform: translate(-50%, -50%) scale(0);
             width: 80px; height: auto;
-            cursor: pointer; z-index: 10; opacity: 0;
-            transition: all 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer; z-index: 15; opacity: 0;
+            transition: all 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         #nong-img.show { 
             opacity: 1;
-            transform: translate(60px, -40px) scale(1); /* ลอยเยื้องออกข้าง */
-            animation: bounceIn 2s ease-in-out infinite alternate;
+            transform: translate(60px, -60px) scale(1); /* พุ่งออกมาเยื้องข้าง */
+            animation: pulseNong 2s ease-in-out infinite alternate;
+        }
+        @keyframes pulseNong {
+            from { transform: translate(60px, -60px) scale(1); }
+            to { transform: translate(65px, -70px) scale(1.1); }
         }
 
-        @keyframes bounceIn {
-            from { transform: translate(60px, -40px) scale(1); }
-            to { transform: translate(65px, -55px) scale(1.05); }
-        }
-
-        /* เม็ดความทรงจำจิ๋ว */
         .memory-seed {
             position: absolute;
-            width: 30px; height: 30px; 
+            width: 35px; height: 35px; 
             padding: 2px; background: white;
             border: 1px solid #eee;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             top: 50%; left: 50%;
             transition: all 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
-            z-index: 1; cursor: pointer; pointer-events: auto;
+            z-index: 20; /* ให้อยู่เหนือช่อดอกไม้เพื่อให้กดได้ง่าย */
+            cursor: pointer; pointer-events: auto;
             object-fit: cover;
             transform: translate(-50%, -50%) scale(0);
         }
 
-        /* หน้าต่างดูรูปขยาย (ตั้งตรงเป๊ะ) */
         #photo-viewer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8); display: none;
-            justify-content: center; align-items: center; z-index: 200;
+            justify-content: center; align-items: center; z-index: 300;
         }
         .view-card {
-            width: 260px; background: white; padding: 10px 10px 25px 10px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-            animation: zoomNormal 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transform: rotate(0deg) !important; 
+            width: 270px; background: white; padding: 12px 12px 30px 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            animation: popNormal 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: rotate(0deg) !important;
         }
-        @keyframes zoomNormal { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .view-card img { width: 100%; display: block; margin-bottom: 10px; }
-        .view-caption { text-align: center; color: #444; font-size: 0.9rem; font-weight: 600; }
+        @keyframes popNormal { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .view-card img { width: 100%; display: block; margin-bottom: 12px; border-radius: 2px; }
+        .view-caption { text-align: center; color: #444; font-size: 0.95rem; font-weight: 600; }
 
-        #touch-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; cursor: pointer; }
-        #watering-can-img { position: fixed; width: 70px; height: 70px; pointer-events: none; display: none; z-index: 20; transform: rotate(-20deg); }
+        #touch-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 6; cursor: pointer; }
+        #watering-can-img { position: fixed; width: 80px; height: 80px; pointer-events: none; display: none; z-index: 50; transform: rotate(-20deg); }
 
-        /* แอนิเมชันช่อดอกไม้เด้งๆ */
-        .pulse-bouquet {
-            animation: pulse 1.5s ease-in-out infinite;
-        }
+        .pulse-bouquet { animation: pulse 1.5s ease-in-out infinite; }
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.08); }
-            100% { transform: scale(1); }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         #overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); display: none;
-            justify-content: center; align-items: center; z-index: 300;
+            justify-content: center; align-items: center; z-index: 400;
         }
-        .letter { background: white; padding: 25px; border-radius: 15px; max-width: 70%; text-align: center; }
+        .letter { background: white; padding: 30px; border-radius: 20px; max-width: 80%; text-align: center; }
     </style>
 </head>
 <body>
 
-    <h1 id="status-text">รดน้ำกันเถอะ (0%)</h1>
+    <h1 id="status-text">แตะหน้าจอเพื่อรดน้ำให้เค้าหน่อยนะ 🌻</h1>
 
     <div id="plant-container">
         <img id="main-plant-img" src="stage1.png">
+        <!-- ตัวที่ซูมออกมาจากดอกไม้ -->
         <img id="nong-img" src="nong.png">
     </div>
 
@@ -120,9 +130,10 @@
     <img id="watering-can-img" src="water-can.png">
 
     <div id="photo-viewer" onclick="this.style.display='none'">
-        <div class="view-card">
+        <div class="view-card" onclick="event.stopPropagation()">
             <img id="view-img" src="">
             <div id="view-caption" class="view-caption"></div>
+            <p style="text-align:center; font-size:0.7rem; color:#aaa; margin-top:10px;">แตะพื้นที่ว่างเพื่อปิด</p>
         </div>
     </div>
 
@@ -135,6 +146,22 @@
     </div>
 
     <script>
+        // สร้างผีเสื้อบินวน
+        function createButterflies() {
+            const emojis = ['🦋', '🌸', '✨'];
+            for(let i=0; i<15; i++) {
+                const b = document.createElement('div');
+                b.className = 'butterfly';
+                b.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
+                b.style.left = Math.random() * 100 + 'vw';
+                b.style.top = Math.random() * 100 + 'vh';
+                b.style.animationDelay = Math.random() * 10 + 's';
+                b.style.animationDuration = (Math.random() * 5 + 8) + 's';
+                document.body.appendChild(b);
+            }
+        }
+        createButterflies();
+
         let count = 0;
         let isComplete = false;
         const statusText = document.getElementById('status-text');
@@ -144,14 +171,14 @@
         const nongImg = document.getElementById('nong-img');
         const plantContainer = document.getElementById('plant-container');
 
-        const captions = ["จุดเริ่มต้นของเรา", "รอยยิ้มของคุณ", "วันพิเศษ", "ขอบคุณนะ", "ความทรงจำจิ๋วๆ", "รักจังเลย", "อยู่ด้วยกันนะ", "คนเก่ง", "รอยยิ้มหวานๆ", "ที่สุดในใจ"];
+        const captions = ["ความทรงจำแรกของเรา", "รอยยิ้มที่คุณให้มา", "ขอบคุณที่อดทนนะ", "คุณน่ารักที่สุดเลย", "เม็ดความรักจิ๋วๆ", "ใจฟูจัง", "อยู่รดน้ำให้กันไปนานๆ นะ", "เจ้าของดอกไม้คนเก่ง", "รอยยิ้มหวานๆ", "รักที่สุดเลยครับ"];
 
         function getMsg(c) {
-            if (c < 25) return `เริ่มรดน้ำแล้ว (${c}%)`;
-            if (c < 50) return `เย้! เริ่มโตแล้ว (${c}%)`;
-            if (c < 75) return `เก่งมาก ต้นไม้สดใสขึ้นนะ (${c}%)`;
-            if (c < 100) return `อีกนิดเดียวจะบานแล้ว (${c}%)`;
-            return "บานสะพรั่งเลย!";
+            if (c < 10) return `ขอบคุณนะ! รดต่ออีกนิด (${c}%)`;
+            if (c < 40) return `เย้! น้องเริ่มโตแล้ว (${c}%)`;
+            if (c < 70) return `ใกล้จะบานแล้วล่ะ (${c}%)`;
+            if (c < 100) return `ว้าว อีกนิดเดียวจริงๆ (${c}%)`;
+            return "บานสะพรั่งแล้ว!";
         }
 
         touchArea.addEventListener('pointerdown', (e) => {
@@ -172,12 +199,12 @@
 
                 setTimeout(() => {
                     nongImg.classList.add('show');
-                    statusText.innerText = "กดที่น้องเพื่อรับความประหลาดใจ!";
-                }, 600);
+                    statusText.innerText = "ลองกดดูสิ... อะไรน้าา?";
+                }, 800);
             } else {
                 waterCan.style.display = "block";
-                waterCan.style.left = (e.clientX - 35) + "px";
-                waterCan.style.top = (e.clientY - 35) + "px";
+                waterCan.style.left = (e.clientX - 40) + "px";
+                waterCan.style.top = (e.clientY - 40) + "px";
                 plantImg.style.transform = "scale(1.05)";
                 setTimeout(() => plantImg.style.transform = "scale(1)", 50);
             }
@@ -189,19 +216,20 @@
         });
 
         nongImg.onclick = () => {
-            nongImg.style.transform = "translate(100px, -200px) scale(0) rotate(45deg)";
+            // น้องพุ่งหายไป
+            nongImg.style.transform = "translate(200px, -300px) scale(0)";
             nongImg.style.opacity = "0";
             
             setTimeout(() => {
-                // ช่อเด้งออกมาแรงกว่าเดิมด้วย cubic-bezier แบบ elastic
-                plantImg.style.transition = "all 0.7s cubic-bezier(0.68, -0.6, 0.32, 2)";
+                // ช่อดอกไม้เด้งออกมาแรงแบบตื่นเต้น
+                plantImg.style.transition = "all 0.6s cubic-bezier(0.68, -0.6, 0.32, 2.5)";
                 plantImg.src = 'bouquet.png';
                 plantImg.style.transform = "scale(1.4)";
-                statusText.innerText = "แตะที่ช่อดอกไม้เร็ว!";
+                statusText.innerText = "แตะที่ช่อดอกไม้ดูความทรงจำ!";
                 
                 setTimeout(() => {
                     plantImg.style.transform = "scale(1)";
-                    plantImg.classList.add('pulse-bouquet'); // เพิ่มเอฟเฟกต์เด้งๆ เชิญชวนให้กด
+                    plantImg.classList.add('pulse-bouquet');
                     plantContainer.style.pointerEvents = "auto";
                     plantContainer.onclick = explode;
                 }, 400);
@@ -213,40 +241,39 @@
             plantContainer.classList.remove('pulse-bouquet');
             plantContainer.onclick = null;
             
-            // ย่อช่อดอกไม้ลงนิดนึงเพื่อให้รูปดูเด่นและไม่ทับรูป
-            plantImg.style.transform = "scale(0.7) translateY(20px)";
+            // ย่อช่อลงเพื่อเปิดทางให้รูป
+            plantImg.style.transform = "scale(0.65) translateY(30px)";
 
             for (let i = 1; i <= 10; i++) {
                 const img = document.createElement('img');
                 img.src = `photo${i}.jpg`;
                 img.className = 'memory-seed';
-                img.onerror = function() { this.src = 'https://via.placeholder.com/40'; };
+                img.onerror = function() { this.src = 'https://via.placeholder.com/50'; };
                 
                 img.onclick = (e) => {
-                    e.stopPropagation();
+                    e.stopPropagation(); // สำคัญ: เพื่อไม่ให้ไปชนกับ event ของจุดอื่น
                     showPhoto(img.src, captions[i-1]);
                 };
                 
                 document.body.appendChild(img);
                 
-                // สุ่มตำแหน่งกระจายตัวในวงนอก (ไม่ทับช่อตรงกลาง)
                 const angle = Math.random() * Math.PI * 2;
-                const dist = Math.random() * 50 + 130; // รัศมีวงนอก 130-180px
+                const dist = Math.random() * 50 + 135; 
                 const x = Math.cos(angle) * dist;
                 const y = Math.sin(angle) * dist;
 
                 setTimeout(() => {
                     img.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(1)`;
-                }, 30 * i);
+                }, 50 * i);
             }
 
-            // ปุ่มจดหมายลอยมาด้านล่าง
+            // ปุ่มจดหมาย
             const btn = document.createElement('div');
-            btn.style.cssText = "position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:40px; height:30px; background:#fff; border:1px solid #ffccbc; display:flex; justify-content:center; align-items:center; z-index:5; cursor:pointer; font-size:1.1rem; box-shadow:0 2px 5px rgba(0,0,0,0.1); transition: 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);";
+            btn.style.cssText = "position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:45px; height:35px; background:#fff; border:1px solid #ffccbc; display:flex; justify-content:center; align-items:center; z-index:30; cursor:pointer; font-size:1.2rem; box-shadow:0 5px 15px rgba(0,0,0,0.1); transition: 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);";
             btn.innerHTML = "✉️";
             btn.onclick = () => document.getElementById('overlay').style.display = 'flex';
             document.body.appendChild(btn);
-            setTimeout(() => btn.style.transform = "translate(calc(-50% + 0px), calc(-50% + 180px))", 300);
+            setTimeout(() => btn.style.transform = "translate(calc(-50% + 0px), calc(-50% + 180px))", 400);
         }
 
         function showPhoto(src, text) {
