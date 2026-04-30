@@ -17,7 +17,7 @@
             position: relative;
         }
 
-        /* พื้นหลังผีเสื้อ */
+        /* ผีเสื้อบินวน */
         .butterfly {
             position: absolute; width: 20px; height: 20px;
             pointer-events: none; z-index: 1; font-size: 20px;
@@ -39,7 +39,7 @@
         }
 
         #plant-container {
-            width: 250px; height: 350px;
+            width: 280px; height: 380px;
             display: flex; justify-content: center; align-items: flex-end;
             position: relative; z-index: 5; 
         }
@@ -47,7 +47,7 @@
         #main-plant-img {
             max-width: 100%; max-height: 100%;
             object-fit: contain;
-            transition: all 1s ease-out; /* ปรับให้สมูทขึ้น ไม่เด้งแรง */
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         #nong-img {
@@ -68,25 +68,25 @@
             to { transform: translate(65px, -75px) scale(1.05); }
         }
 
-        /* เม็ดรูปภาพ: มีแอนิเมชันเด้งๆ ตลอดเวลา */
+        /* รูปความทรงจำที่เด้งตลอดเวลา */
         .memory-seed {
             position: absolute;
-            width: 48px; height: 48px; 
+            width: 50px; height: 50px; 
             padding: 3px; background: white;
-            border: 1px solid #ddd;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            border: 1px solid #eee;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.15);
             top: 50%; left: 50%;
-            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 50; 
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 60; 
             cursor: pointer; pointer-events: auto;
             object-fit: cover;
             border-radius: 4px;
-            animation: bounceAlways 2.5s ease-in-out infinite;
+            animation: bounceSeed 3s ease-in-out infinite;
         }
 
-        @keyframes bounceAlways {
-            0%, 100% { transform: translate(-50%, -50%) scale(1) translateY(0); }
-            50% { transform: translate(-50%, -50%) scale(1.08) translateY(-10px); }
+        @keyframes bounceSeed {
+            0%, 100% { margin-top: 0; transform: translate(-50%, -50%) scale(1); }
+            50% { margin-top: -12px; transform: translate(-50%, -50%) scale(1.1); }
         }
 
         #photo-viewer {
@@ -95,7 +95,7 @@
             justify-content: center; align-items: center; z-index: 300;
         }
         .view-card {
-            width: 80%; max-width: 290px;
+            width: 82%; max-width: 300px;
             background: white; padding: 12px 12px 25px 12px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             animation: popNormal 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -107,16 +107,16 @@
         #touch-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 6; cursor: pointer; }
         #watering-can-img { position: fixed; width: 80px; height: 80px; pointer-events: none; display: none; z-index: 100; transform: rotate(-20deg); }
 
-        /* จดหมายเด้งๆ */
+        /* ปุ่มจดหมาย */
         .letter-btn {
             position: absolute; top: 50%; left: 50%; 
-            width: 50px; height: 40px; background: #fff; 
+            width: 55px; height: 45px; background: #fff; 
             border: 1px solid #ffccbc; display: flex; 
             justify-content: center; align-items: center; 
-            z-index: 100; cursor: pointer; font-size: 1.3rem; 
+            z-index: 100; cursor: pointer; font-size: 1.4rem; 
             box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
-            border-radius: 8px;
-            animation: bounceAlways 2s ease-in-out infinite;
+            border-radius: 10px;
+            animation: bounceSeed 2.5s ease-in-out infinite;
         }
 
         #overlay {
@@ -171,7 +171,7 @@
 
         let count = 0;
         let isComplete = false;
-        const captions = ["จุดเริ่มต้น", "ความสุข", "ข้างกัน", "วันพิเศษ", "เม็ดความรัก", "ใจฟู", "เติบโต", "คนเก่ง", "รอยยิ้ม", "รักที่สุด"];
+        const captions = ["จุดเริ่มต้นความทรงจำ", "รอยยิ้มที่แสนพิเศษ", "ขอบคุณที่อยู่ข้างกัน", "วันที่มีความสุขที่สุด", "เม็ดความรักเล็กๆ", "ใจฟูทุกครั้งที่มอง", "เติบโตไปด้วยกันนะ", "คนเก่งของเค้า", "เจ้าของรอยยิ้มนี้", "รักที่สุดเลยครับ"];
 
         const statusText = document.getElementById('status-text');
         const plantImg = document.getElementById('main-plant-img');
@@ -183,7 +183,7 @@
         touchArea.addEventListener('pointerdown', (e) => {
             if (isComplete) return;
             count++;
-            statusText.innerText = count < 100 ? `รดน้ำกันเถอะ (${count}%)` : "บานสะพรั่งแล้ว!";
+            statusText.innerText = `รดน้ำกันเถอะ (${count}%)`;
             
             if(count === 20) plantImg.src = 'stage2.png';
             if(count === 40) plantImg.src = 'stage3.png';
@@ -195,12 +195,15 @@
                 isComplete = true;
                 waterCan.remove();
                 touchArea.remove();
-                setTimeout(() => { nongImg.classList.add('show'); statusText.innerText = "ลองกดดูสิ... อะไรน้าา?"; }, 800);
+                setTimeout(() => { 
+                    nongImg.classList.add('show'); 
+                    statusText.innerText = "ลองกดดูสิ... อะไรน้าา?"; 
+                }, 800);
             } else {
                 waterCan.style.display = "block";
                 waterCan.style.left = (e.clientX - 40) + "px";
                 waterCan.style.top = (e.clientY - 40) + "px";
-                plantImg.style.transform = "scale(1.03)";
+                plantImg.style.transform = "scale(1.05)";
                 setTimeout(() => plantImg.style.transform = "scale(1)", 50);
             }
         });
@@ -212,10 +215,9 @@
             nongImg.style.opacity = "0";
             setTimeout(() => {
                 plantImg.src = 'bouquet.png';
-                plantImg.style.transform = "scale(1.2)"; // พุ่งออกแบบสมูท
+                plantImg.style.transform = "scale(1.35)"; // เด้งออกมาใหญ่เหมือนเดิม
                 statusText.innerText = "แตะที่ช่อดอกไม้สิ!";
                 setTimeout(() => {
-                    plantImg.style.transform = "scale(1)";
                     plantContainer.style.pointerEvents = "auto";
                     plantContainer.onclick = explode;
                 }, 500);
@@ -225,7 +227,7 @@
         function explode() {
             statusText.style.opacity = "0";
             plantContainer.onclick = null;
-            plantImg.style.transform = "scale(0.6) translateY(50px)";
+            // ช่อดอกไม้คงขนาดเดิม (Scale 1.35) ไม่ย่อเล็กลง
 
             for (let i = 0; i < 10; i++) {
                 const img = document.createElement('img');
@@ -236,24 +238,23 @@
                 img.onclick = (e) => { e.stopPropagation(); showPhoto(img.src, captions[i]); };
                 document.body.appendChild(img);
                 
-                // กระจายแบบไม่เป็นระเบียบ (Random organic scatter)
-                const angle = (i / 5) * Math.PI + (Math.random() * 0.5); 
-                const dist = 130 + (Math.random() * 40); 
+                // กระจายแบบไม่เป็นระเบียบ (Organic Random)
+                // สุ่มองศาอิสระ (0-360) และสุ่มระยะห่าง
+                const angle = Math.random() * Math.PI * 2; 
+                const dist = 140 + (Math.random() * 60); 
                 const x = Math.cos(angle) * dist;
                 const y = Math.sin(angle) * dist;
-                const rotate = (Math.random() - 0.5) * 30; // สุ่มเอียงรูป
+                const rotate = (Math.random() - 0.5) * 40; 
 
                 setTimeout(() => {
-                    // ใช้แอนิเมชันเด้งๆ พร้อมกับตำแหน่งกระจาย
                     img.style.left = `calc(50% + ${x}px)`;
                     img.style.top = `calc(50% + ${y}px)`;
                     img.style.transform = `translate(-50%, -50%) rotate(${rotate}deg) scale(1)`;
-                    // ปรับ delay แอนิเมชัน bounce ให้ดูไม่พร้อมกัน จะดูธรรมชาติกว่า
-                    img.style.animationDelay = (Math.random() * 2) + "s";
-                }, i * 80);
+                    img.style.animationDelay = (Math.random() * 2) + "s"; // ให้เด้งไม่พร้อมกันดูธรรมชาติ
+                }, i * 60);
             }
 
-            // ปุ่มจดหมายเด้งๆ
+            // ปุ่มจดหมาย
             const btn = document.createElement('div');
             btn.className = "letter-btn";
             btn.innerHTML = "✉️";
@@ -261,7 +262,7 @@
             document.body.appendChild(btn);
             setTimeout(() => {
                 btn.style.left = "50%";
-                btn.style.top = "calc(50% + 210px)";
+                btn.style.top = "calc(50% + 220px)";
                 btn.style.transform = "translate(-50%, -50%) scale(1)";
                 btn.style.animationDelay = "0.5s";
             }, 600);
